@@ -1,0 +1,38 @@
+# Dependencies are reinstalled inside the image with `npm ci`.
+node_modules
+# Build output is produced inside the image.
+.next
+out
+build
+dist
+
+# Local state that must never be baked into an image.
+data
+uploads
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Secrets: the real values arrive at runtime via docker-compose env_file.
+.env
+.env.*
+!.env.example
+
+# VCS, editor and OS cruft.
+.git
+.gitignore
+.github
+.vscode
+.idea
+.DS_Store
+*.log
+npm-debug.log*
+
+# Docs and tests do not need to be in the image.
+README.md
+LICENSE
+Dockerfile
+docker-compose.yml
+.dockerignore

@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# next.js
+.next/
+out/
+build/
+next-env.d.ts
+
+# runtime data (persisted via Docker volumes in production)
+data/
+uploads/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# env
+.env
+.env.local
+.env*.local
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+yarn-error.log*
+.vercel
+*.tsbuildinfo

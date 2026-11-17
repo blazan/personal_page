@@ -1,0 +1,68 @@
+# ---------------------------------------------------------------------------
+# Marijana Mandić - portfolio site + admin panel
+#
+#   cp .env.example .env      # then edit the values
+#   docker compose up -d --build
+#
+# The site is then on http://localhost:3000 and the panel on
+# http://localhost:3000/admin
+# ---------------------------------------------------------------------------
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: marijana-portfolio:latest
+    container_name: marijana-portfolio
+    restart: unless-stopped
+
+    # Bind only to loopback by default. Put a reverse proxy (Caddy, nginx,
+    # Traefik) in front for TLS, or change to "3000:3000" to expose on all
+    # interfaces.
+    ports:
+      - "127.0.0.1:3000:3000"
+
+    env_file:
+      - .env
+
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+      DATA_DIR: /app/data
+      UPLOAD_DIR: /app/uploads
+
+    volumes:
+      # Named volumes keep the database and uploads across `up`, `down` and
+      # image rebuilds. `docker compose down -v` removes them.
+      - portfolio-data:/app/data
+      - portfolio-uploads:/app/uploads
+
+    # Give the first request room to warm up before the healthcheck counts.
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+    # Hardening: the container needs no privileges and no writable rootfs
+    # beyond the two mounted volumes and the tmpfs mounts below.
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+      - /app/.next/cache:size=128m,uid=1001,gid=1001
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  portfolio-data:
+  portfolio-uploads:
